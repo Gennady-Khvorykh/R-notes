@@ -8,7 +8,7 @@ output:
 ### Set environment for the session
 * `Sys.setlocale("LC_CTYPE", "russian")` is useful for handling texts in Russian
 * `options(stringsAsFactors = F)`
-* `options(error=recover)` is useful for debuging
+* `options(error=recover)` is useful for debugging
 
 ### Editing text variable
 * `sprintf("%s/%s/", path, cand)` returns "path/cand"
@@ -23,6 +23,7 @@ output:
 #### Base plotting systems
 ##### Creating a plot
 * `plot(x, y)` is a generic function, behaves differently depending on arguments
+* `plot(x, y, type = "n")` creates empty plot
 * `hist(data, breaks = 100)` produces histogram where `breaks` sets the number of bars
 ```{r}
 library(datasets)
@@ -31,14 +32,18 @@ hist(airquality$Ozone, col = "skyblue", breaks = 20, main = "Histogram of ozone"
 ```
 
 * `lines()` adds lines to a plot
-* `points()` adds points to a plot
+* `points()` adds points to a plot. For further references check `example(points)`
 ```{r}
 with(airquality, plot(Wind, Ozone))
 with(subset(airquality, Month == 5), points(Wind, Ozone, col = "red"))
 
 ```
 
-* `boxplot(data ~ categories, data = dataset, col = "red")`
+* `boxplot(data ~ categories, data = dataset, col = "red")` produces box-and-whisker plot(s) of the given (grouped) values
+```{r}
+boxplot(Ozone ~ Month, data = airquality, main = "Ozone concentrations over the months", xlab = "Months", ylab = "Ozone concentration")
+```
+
 * `abline()` can be used to plot **regression lines**, e.g.,
 ```{r}
 model.wind <- lm(Ozone ~ Wind, airquality)
@@ -56,11 +61,11 @@ with(airquality, {
 
 * `barplot(table(data), col = color, main = "Title of the graph")` is useful for plotting **categorical** data
 * `par()` is used to set global graphical parameters, e.g.,
-    + `pch` the ploting symbol
+    + `pch` the plotting symbol
     + `lty` the line type 
-    + `lwd` the libe width
+    + `lwd` the line width
     + `col` specifies the color (check `colors()` function)
-    + `xlab` and `ylab` are character strings for the axises
+    + `xlab` and `ylab` are character strings for the axis
     + `las` orientation of the axis labels
     + `bg` background color
     + `mar` margin size
@@ -73,22 +78,91 @@ with(airquality, {
 * `legend()` adds legend to the plot
 
 #### Lattice system
-```{r eval=FALSE}
+```{r}
 library(lattice)
 
 ```
 * good for plotting many plots on a screen
 * most useful for conditioning type of plots
 * plots are created with single function call
-* `xyplot()`
-* `bwplot()`
+* `xyplot(y ~ x, data)` is useful for scatterplots and time-series
+```{r}
+xyplot(Ozone ~ Wind | Month, airquality)
+```
+
+* `bwplot()` -> box-and-whisker plots
+* `histogram()` -> histograms
+* `panel()` function controls what happens inside each panel of the plot
+```{r}
+#custom panel function
+xyplot(Ozone ~ Solar.R, airquality, panel = function(x, y, ...){
+  panel.xyplot(x, y, ...) #first call the default panel function
+  panel.abline(h = mean(y, na.rm = T), lty = 2)
+})
+```
+
 
 #### ggplot2 system
-```{r eval=FALSE}
+```{r}
 library(ggplot2)
 
 ```
-* `qplot(displ, hwy, data = mpg)` is a basic plotting function, a convinient wrapper for `plot()`
+* an implementation of the Gramar of Graphics by Leland Wilkinson
+* shorten the distance from mind to map by using `aesthetics` (size, shape, color) and `geom` (point, lines)
+* data always come from data frames
+* factors should be labeled intelligently
+* `qplot()` is a basic plotting function, a convenient wrapper for `plot()`, 
+* `qplot(displ, hwy, data = mpg)` produces simple scatterplot
+```{r}
+qplot(displ, hwy, data = mpg, color = drv, geom = c("point", "smooth"), facets = drv ~ ., method = "lm")
+```
+
+* `qplot(x, data)` produces histogram
+```{r}
+qplot(hwy, data = mpg, facets = . ~ drv, fill = drv, geom = "density")
+```
+
+* `ggplot()` is core function that provides low level customization and layer by layer  plotting 
+```{r}
+g <- ggplot(mpg, aes(displ, hwy))
+g + geom_point(aes(color = drv)) + facet_grid(. ~ drv) + geom_smooth(method = "lm", linetype = 3, size = 1) + labs(title = "Gasoline consumtion vs. engine displacement", x = "Engine displacement, in litres", y = " Highway miles per gallon") + theme_bw()
+```
+
+* for **annotations** use `xlabs()`, `ylabs()`, `labs()`, `ggtitle()`
+* each `geom()` functions has options to change
+* to specify the whole plot use `theme()` function, e.g., `theme(legend.position = 'none')`
+* two standart themes are included: `theme_gray()` and `theme_bw()`
+* `coord_cartesian()` is used to ignore the outlier
+```{r}
+#
+df <- data.frame(x = 1:100, y = rnorm(100))
+df[50, 2] <- 100 #outlier!
+g <- ggplot(df, aes(x, y))
+g + geom_line() + coord_cartesian(ylim = c(-3, 3))
+```
+
+* `cut()` allows to make continuoes variable categorical
+```{r warning=FALSE}
+#Calculate the deciles of the data
+cutpoints <- quantile(airquality$Ozone, seq(0, 1, length = 4), na.rm = T)
+
+#Cut the data and create new factor variable
+airquality$O3level <- cut(airquality$Ozone, cutpoints)
+
+#Set the descriptive levels
+levels(airquality$O3level) <- c("low", "middle", "high")
+
+#Setup ggplot() with data frame
+g <- ggplot(airquality, aes(Wind, Ozone))
+g + geom_point(alpha = 1/2) + facet_grid(. ~ O3level) + geom_smooth(method = "lm")
+```
+
+
+#### Graphical devices
+* `?Devices` returns the list of devices 
+* `dev.off()` closes opened graphical device. Always do it.
+* `dev.cur()` shows the currently opened graphical device
+* `dev.copy()` copy a plot from one device to another
 
 #### Resources 
 * [R Graph Gallery](http://rgraphgallery.blogspot.ru/)
