@@ -16,6 +16,20 @@ output:
 ### Combinatorics
 * `expand.grid()` creates a data frame from all combinations of the supplied vectors or factors
 
+### R-markdown
+* making tables with `xtable`
+```{r}
+fit <- lm(Ozone ~ Wind + Temp +Solar.R, data = airquality)
+```
+
+Print the table with regression coefficients.
+
+```{r resulsts = "asis"}
+library(xtable)
+xt <- xtable(summary(fit))
+print(xt, tupr = "html")
+```
+
 ### Exploratory Graphs
 
 * There are 3 graphics systems that cannot be generally mixed. 
@@ -85,6 +99,7 @@ library(lattice)
 * good for plotting many plots on a screen
 * most useful for conditioning type of plots
 * plots are created with single function call
+* high-level Lattice functions return an object of class "trellis"
 * `xyplot(y ~ x, data)` is useful for scatterplots and time-series
 ```{r}
 xyplot(Ozone ~ Wind | Month, airquality)
@@ -163,6 +178,14 @@ g + geom_point(alpha = 1/2) + facet_grid(. ~ O3level) + geom_smooth(method = "lm
 * `dev.off()` closes opened graphical device. Always do it.
 * `dev.cur()` shows the currently opened graphical device
 * `dev.copy()` copy a plot from one device to another
+
+```{r eval=FALSE}
+plot(data)
+dev.copy(png, "filename.png")
+dev.off()
+         
+```
+
 
 #### Resources 
 * [R Graph Gallery](http://rgraphgallery.blogspot.ru/)
