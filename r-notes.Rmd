@@ -12,6 +12,11 @@ output:
 
 ### Editing text variable
 * `sprintf("%s/%s/", path, cand)` returns "path/cand"
+* `dput()` returns an ASCII text representation of an R object. 
+```{r}
+dput(names(mtcars))
+```
+
 
 ### Combinatorics
 * `expand.grid()` creates a data frame from all combinations of the supplied vectors or factors

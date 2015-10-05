@@ -1,0 +1,53 @@
+---
+title: "Feature Selection Notes"
+author: "Gennady Khvorykh"
+date: "Friday, October 02, 2015"
+output: 
+  html_document:
+    toc: true
+---
+
+```{r setup, include = F}
+knitr::opts_chunk$set(cache = T)
+```
+
+### Indices of homogenity (impurity)
+* **Entropy** $= -\sum_{i=1}^Np_ilog_2p_i$, where $p_i$ is the value of probability of class i and N is the number of classes. Entropy reaches maximum, when all classes have equal probability.
+
+```{r echo = F}
+n <- seq(1, 16, 1)
+p <- 1/n
+e <- -log2(p)
+plot(n, e, main = "Maximum entropy", xlab = "Number of classes", ylab = "Entropy", type = "l", col = "blue")
+points(n, e, pch = 15, col = "blue")
+axis(1, at=1:16)
+
+```
+
+
+* **Gini index** $= 1-\sum_{i=1}^Np^2_i$
+* **Classification Error** = $1-max\{p_i\}$
+
+### L1 (Lasso) regularization
+
+* Lasso (L1) is useful for feature selection, while Ridge (L2) is usually used for  regularization
+
+
+### Questions
+* How to calculate information gain based on enthropy and Gini index?
+* How to analyse spatial point pattern? See package [spatstat](http://www.mismc.ru/downloads/d2/Spatial%20data/spatstatJSSpaper.pdf).
+
+### Caret package
+* `nearZeroVar()` identifies columns with either zero or near-zero variance; 
+* `findLinearCombos()` identifies columns which are linear combinations of the others;
+* `checkConditionalX()` takes into account the specific levels of 'y' when pulling out columns which will likely have low predictive power;
+* `findCorrelation()` to identify highly correlated columns as well. 
+
+### Genetic Algorithms
+* packages `genalg`, `GA` (unable to move temporary installation)
+
+### Exploring data 
+* `ggpairs()` from `GGally` package plot matrix with correlation coefficients and distributions 
+
+### References
+1. [Large scale L1 feature selection with Vowpal Wabbit](http://fastml.com/large-scale-l1-feature-selection-with-vowpal-wabbit/)
