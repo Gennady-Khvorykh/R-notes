@@ -29,10 +29,10 @@ fit <- lm(Ozone ~ Wind + Temp +Solar.R, data = airquality)
 
 Print the table with regression coefficients.
 
-```{r resulsts = "asis"}
-library(xtable)
+```{r results = "asis"}
+require(xtable)
 xt <- xtable(summary(fit))
-print(xt, tupr = "html")
+print(xt, type = "html")
 ```
 
 ### Exploratory Graphs
@@ -175,6 +175,19 @@ levels(airquality$O3level) <- c("low", "middle", "high")
 #Setup ggplot() with data frame
 g <- ggplot(airquality, aes(Wind, Ozone))
 g + geom_point(alpha = 1/2) + facet_grid(. ~ O3level) + geom_smooth(method = "lm")
+```
+
+* `grid.arrange()` from package `gridExtra` sets up a gtable layout to place multiple grobs on a page
+
+```{r}
+library(gridExtra)
+p1 <- qplot(rexp(1000), geom = "density", xlab = "deviates")
+av <- NULL
+for(i in 1:1000) av <- c(av, mean(rexp(40)))
+p2 <- qplot(av, geom = "density", xlab = "averages")
+
+grid.arrange(p1, p2, ncol = 1)
+
 ```
 
 
