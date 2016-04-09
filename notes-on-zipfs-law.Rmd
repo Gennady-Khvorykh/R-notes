@@ -1,8 +1,10 @@
 ---
 title: "Notes on Zipf's Law"
-author: "Gennady Khvorykh"
+author: "Gennady Khvorykh, [followbigdata.com](http://followbigdata.com)"
 date: "Saturday, April 09, 2016"
-output: html_document
+output: 
+  html_document:
+    toc: true
 ---
 
 ```{r}

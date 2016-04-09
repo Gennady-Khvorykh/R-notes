@@ -7,10 +7,6 @@ output:
     toc: true
 ---
 
-```{r setup, include = F}
-knitr::opts_chunk$set(cache = T)
-```
-
 ### Indices of homogenity (impurity)
 * **Entropy** $= -\sum_{i=1}^Np_ilog_2p_i$, where $p_i$ is the value of probability of class i and N is the number of classes. Entropy reaches maximum, when all classes have equal probability.
 
