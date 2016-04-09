@@ -1,0 +1,91 @@
+---
+title: "Notes on Zipf's Law"
+author: "Gennady Khvorykh"
+date: "Saturday, April 09, 2016"
+output: html_document
+---
+
+```{r}
+require(zipfR)
+```
+
+### Terms
+* `V` is vocabulary size (number of types)
+* `N` is sample size (number of tokens)
+* `Vm` is number of types tha have frequency m
+* `hapax legomena` is the number of types that occur only once in the corpus ($V_1$)
+
+`Frequency spectrum` summerizes how many times (m) the number of distinc types (Vm) occurs.
+
+```{r}
+data(ItaRi.spc)
+spec <- ItaRi.spc
+rm(ItaRi.spc)
+spec
+```
+
+### Vizualization
+```{r}
+plot(spec)
+
+# Vizualization on ligarithmic base
+plot(spec, log = "x", xlab = "log10(m)") # only x is on ligarithmic base
+
+# Subset the first 50 frequency classes
+spec.50 <- spec[spec$m < 50, ]
+spec.50[c("m", "Vm")] <-  log10(spec.50[c("m", "Vm")])
+
+fit <- lm(Vm ~ m, spec.50)
+with(spec.50, {
+  plot(m, Vm, main = "Frequency Spectrum", xlab = "log10(m)", ylab = "log10(Vm)")
+  abline(fit, col = "blue")
+  })
+```
+
+### Measure of Productivity
+Frequency spetrum plots tell about the nature of a process. 
+
+High proportion of `hapax legomena` and other low frequency classes indicates the process being productive.  
+
+The higher the productivity of the process, the higher the  chances to encounter new types of tokens, if  we  were  to  sample  more  tokens of the same category.
+
+```{r}
+Vm(spec, 1)/N(spec)
+```
+
+The vocabulary size increases as sample size increases. How rapid does vocabulary size grow?
+
+### Vocabulary growth curves (VGC)
+
+```{r}
+data(ItaRi.emp.vgc)
+head(ItaRi.emp.vgc)
+```
+
+VGC reports vocabulary size (number of types, V) as a function of sample size (number of tokens, N). For example, after N = 500000, V = `r V(ItaRi.emp.vgc)[N(ItaRi.emp.vgc) == 500000]`, while for the whole dataset V = `r V(spec)`. The number of samples included in VGC can be seen from summary()
+
+```{r}
+summary(ItaRi.emp.vgc)
+```
+
+The most interesting frequency class is hapax legomena. It is often included in VGC data. To add $V_1$ curve to VGC plot, specify `add.m=1` 
+
+```{r}
+plot(ItaRi.emp.vgc, add.m = 1)
+```
+
+### How to check the assumtion of randomness?
+
+To invalidate the statistical model, compare the empirical VGC with interpolated one. The different shapes of the empirical and expected curves is the source of concern about the validity of randomness assumptions.  
+
+Smothed curve can be obtained with `binomial interpolation`. It can be done directly from frequency spectrum with `vgc.interp()`.
+
+```{r}
+inter.VGC <- vgc.interp(spec, N(ItaRi.emp.vgc))
+plot(ItaRi.emp.vgc, inter.VGC, legend = c("observed", "interpolated"))
+
+```
+
+
+### References
+* Marco Baroni, Stefan Evert, [The zipfR package for lexical statistics: A tutorial introduction](http://zipfr.r-forge.r-project.org/materials/zipfr-tutorial.pdf), 2014.
