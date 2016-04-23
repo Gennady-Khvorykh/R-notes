@@ -70,7 +70,7 @@ VGC reports vocabulary size (number of types, V) as a function of sample size (n
 summary(ItaRi.emp.vgc)
 ```
 
-The most interesting frequency class is hapax legomena. It is often included in VGC data. To add $V_1$ curve to VGC plot, specify `add.m=1` 
+The most interesting frequency class is *hapax legomena*. It is often included in VGC data. To add $V_1$ curve to VGC plot, specify `add.m=1` 
 
 ```{r}
 plot(ItaRi.emp.vgc, add.m = 1)
@@ -88,6 +88,55 @@ plot(ItaRi.emp.vgc, inter.VGC, legend = c("observed", "interpolated"))
 
 ```
 
+### How to extrapolate V?
+
+Toolkit of `zipfR` package supports **3 classes of Large-Number-of-Rare-Events (LNRE) models**: Generalized Inverse Gauss Poisson (lnre.gigp), Zipf-Mandelbrot (
+lnre.zm) and fnite Zipf-Mandelbrot (lnre.fzm).
+
+```{r}
+fit <- lnre("fzm", spec, exact = F)
+expected <- lnre.spc(fit, N(fit))
+plot(spec, expected, legend = c("observed", "fZM"))
+```
+
+The fZM model can be used to estimate $V$ and $V_m$ at arbitrary sample size. 
+
+```{r}
+expected <- lnre.vgc(fit, (1:100)*28e3)
+plot(ItaRi.emp.vgc, expected, N0 = N(fit), legend = c("observed", "fZM"))
+```
+
+
+### Comparing VGC of different categories
+
+It is interesting to compare two word formation process. Which one is more productive? For example, adjectives or nouns in Brown corpus? Since adjective-sample is smaller, we extrapolate it to the size of noun-sample.   
+
+```{r}
+data(BrownAdj.emp.vgc)
+data(BrownAdj.spc)
+data(BrownNoun.emp.vgc)
+
+fit <- lnre("fzm", BrownAdj.spc, exact = F) # fit the model
+BrownAdj.exp.vgc <- lnre.vgc(fit, N(BrownNoun.emp.vgc)) # predict the values
+plot(BrownAdj.exp.vgc, BrownNoun.emp.vgc, legend = c("adj", "noun"))
+```
+
+### Estimating the proportion of OOV types and tokens given a fixed size lexicon
+
+Consider the Brown corpus. 
+
+```{r}
+data(Brown100k.spc)
+
+V(Brown100k.spc)
+
+plot(Brown100k.spc)
+
+```
+
+Hapax legomena consists of `r Vm(Brown100k.spc, 1)/N(Brown100k.spc)*100` percent of the sample size. We can afford to considere $V_1$ as OOV. But what will happen when on a larger input? 
 
 ### References
 * Marco Baroni, Stefan Evert, [The zipfR package for lexical statistics: A tutorial introduction](http://zipfr.r-forge.r-project.org/materials/zipfr-tutorial.pdf), 2014.
+
+* [zipfR  website](http:/zipfR.r-forge.r-project.org/)
